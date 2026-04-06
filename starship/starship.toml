@@ -20,6 +20,16 @@ truncate_to_repo = false
 success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"
 
+# Git
+[git_branch]
+symbol = ""
+style = "fg:#394260"
+format = '[[$symbol $branch ](bold purple)]($style)'
+
+[git_status]
+style = "fg:#394260"
+format = '[[($all_status$ahead_behind )](bold red)]($style)'
+
 # Language modules
 [python]
 symbol = "\ue73c "
@@ -27,6 +37,7 @@ format = "[${symbol}${virtualenv}](yellow)"
 
 [rust]
 symbol = "\ue7a8 "
+format = "[${symbol}](red)"
 
 [custom.bash]
 command = "echo ''"
