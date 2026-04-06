@@ -1,0 +1,23 @@
+## Kali Base
+kali-base (){
+    sudo podman run \
+    -it \
+    --rm \
+    --security-opt label=disable \
+    --network host \
+    --privileged \
+    -v $HOME:$HOME \
+    ghcr.io/sir-mudkip/kali-base:latest
+}
+
+## Kali-VM
+kali-vm (){
+    sudo podman run \
+    -it \
+    --rm \
+    --security-opt label=disable \
+    --network host \
+    --privileged \
+    -v $HOME:$HOME \
+    ghcr.io/sir-mudkip/kali-cloud:latest
+}

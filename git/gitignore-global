@@ -1,0 +1,42 @@
+# Secrets and credentials
+.env
+.env.*
+credentials.json
+.credentials.json
+*secret*
+
+# SSH
+.ssh/
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.pem
+authorized_keys
+
+# GPG keys
+*.gpg
+*.asc
+
+# Cosign
+cosign.key
+
+# Ignition / Butane
+*.ign
+*.bu
+
+# Editor temp files
+*.swp
+*.swo
+*~
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Language / tooling
+__pycache__/
+*.pyc
+node_modules/
+.idea/
+.vscode/

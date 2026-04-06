@@ -1,0 +1,50 @@
+## Metasploit Framework
+# Creating an msf workspace
+podman-msf() {
+    local name="${1:-msf}"
+    local rm_flag=""
+    [ -z "$1" ] && rm_flag="--rm"
+
+    # postgres
+    sudo podman run \
+        --security-opt label=disable \
+        --name msf_"$name" \
+        $rm_flag \
+        -p 127.0.0.1:5432:5432 \
+        -e POSTGRES_PASSWORD=postgres \
+        -e POSTGRES_USER=postgres \
+        -e POSTGRES_DB="$name" \
+        -d \
+        docker.io/library/postgres:alpine
+
+    # wait for db to fire up
+    sleep 3
+
+    # msfconsole
+    sudo podman run \
+        --security-opt label=disable \
+        --privileged \
+        --rm \
+        -it \
+        --network host \
+        -v $HOME:$HOME \
+        -v /tmp:/tmp \
+        -e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$name" \
+        -e MSF_UID=0 \
+        registry.gitlab.com/snotra.uk/containers/metasploit-framework
+}
+
+# Connect to existing msfdb
+podman-msf-connect() {
+    sudo podman run \
+        --security-opt label=disable \
+        --rm \
+        -it \
+        --network host \
+        --privileged \
+        -v /tmp:/tmp \
+        -v $HOME:$HOME \
+        -e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$1" \
+        -e MSF_UID=0 \
+        registry.gitlab.com/snotra.uk/containers/metasploit-framework
+}

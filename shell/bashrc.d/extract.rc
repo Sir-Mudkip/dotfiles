@@ -1,0 +1,5 @@
+# Extract functions
+extract-tar() { tar xf "$@"; }
+extract-zip() { unzip "$@"; }
+extract-7z() { 7z x "$@"; }
+extract-rar() { unrar x "$@"; }

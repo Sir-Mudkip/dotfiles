@@ -1,0 +1,2 @@
+# Hacktricks
+alias hacktricks='podman run -d --rm --platform linux/amd64 -p 3337:3000 --name hacktricks -v $HOME/toolkit/hacktricks:/app ghcr.io/hacktricks-wiki/hacktricks-cloud/translator-image bash -c "mkdir -p ~/.ssh && ssh-keyscan -H github.com >> ~/.ssh/known_hosts && cd /app && git config --global --add safe.directory /app && git checkout $LANG && git pull && MDBOOK_PREPROCESSOR__HACKTRICKS__ENV=dev mdbook serve --hostname 0.0.0.0"'

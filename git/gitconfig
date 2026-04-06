@@ -1,0 +1,35 @@
+[user]
+	name = Sir-Mudkip
+	email = lukechappman@gmail.com
+
+[init]
+	defaultBranch = master
+
+[core]
+	excludesFile = ~/.gitignore-global
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[rerere]
+	enabled = true
+
+[diff]
+	colorMoved = default
+
+[merge]
+	conflictstyle = diff3
+
+[alias]
+	st = status
+	br = branch
+	lg = log --oneline --graph --decorate
+	new = !gh repo create
+	sync = !git pull --rebase && git push
+	remotes = remote -v
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/

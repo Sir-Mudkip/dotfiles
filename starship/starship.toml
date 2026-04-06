@@ -1,0 +1,36 @@
+format = """\
+\\[$username[@](bold fg:111)$hostname\\]-\\[$directory\\] $git_branch$git_status$python$rust$custom
+$character"""
+
+[username]
+show_always = true
+format = "[$user](bold fg:111)"
+style_root = 'bold red'
+
+[hostname]
+ssh_only = false
+format = "[$hostname](bold fg:111)"
+
+[directory]
+style = "bold fg:34"
+format = "[$path]($style)[$read_only]($read_only_style)"
+truncate_to_repo = false
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+# Language modules
+[python]
+symbol = "\ue73c "
+format = "[${symbol}${virtualenv}](yellow)"
+
+[rust]
+symbol = "\ue7a8 "
+
+[custom.bash]
+command = "echo ''"
+detect_extensions = ["sh"]
+symbol = "\ue795 "
+format = "[$symbol]($style)"
+

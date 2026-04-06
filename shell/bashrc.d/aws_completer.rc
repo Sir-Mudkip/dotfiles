@@ -1,0 +1,2 @@
+# AWS Completer
+complete -C '/var/home/linuxbrew/.linuxbrew/bin/aws_completer' aws

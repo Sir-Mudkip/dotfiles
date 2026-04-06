@@ -1,0 +1,6 @@
+[default]
+region = eu-west-2
+output = yaml
+[profile luke]
+region = eu-west-2
+output = yaml
