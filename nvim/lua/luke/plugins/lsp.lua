@@ -28,6 +28,32 @@ return {
         },
       })
 
+      -- yamlls with SchemaStore integration for Kubernetes, GitHub Actions,
+      -- docker-compose, etc. Files matching the glob patterns below also
+      -- get an explicit Kubernetes schema.
+      vim.lsp.config("yamlls", {
+        settings = {
+          yaml = {
+            schemaStore = {
+              enable = true,
+              url = "https://www.schemastore.org/api/json/catalog.json",
+            },
+            schemas = {
+              kubernetes = { "*.k8s.yaml", "k8s/**/*.yaml", "kubernetes/**/*.yaml", "manifests/**/*.yaml" },
+              ["https://json.schemastore.org/github-workflow.json"] = ".github/workflows/*.{yml,yaml}",
+              ["https://json.schemastore.org/github-action.json"] = ".github/action.{yml,yaml}",
+              ["https://json.schemastore.org/docker-compose.json"] = "docker-compose*.{yml,yaml}",
+              ["https://json.schemastore.org/ansible-playbook.json"] = "playbook*.{yml,yaml}",
+            },
+            format = { enable = true },
+            validate = true,
+            completion = true,
+            hover = true,
+          },
+          redhat = { telemetry = { enabled = false } },
+        },
+      })
+
       vim.lsp.config("lua_ls", {
         settings = {
           Lua = {
