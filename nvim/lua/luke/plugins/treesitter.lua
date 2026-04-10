@@ -1,10 +1,52 @@
 return {
-{
+  {
     "nvim-treesitter/nvim-treesitter",
-    branch = 'master',
+    branch = "master",
     lazy = false,
     build = ":TSUpdate",
     config = function()
+      require("nvim-treesitter.configs").setup({
+        ensure_installed = {
+          -- Languages you work with
+          "bash",
+          "python",
+          "yaml",
+          "json",
+          "jsonc",
+          "javascript",
+          "typescript",
+          "tsx",
+          "html",
+          "css",
+          -- Future
+          "rust",
+          "go",
+          "gomod",
+          "gosum",
+          -- Config / infra
+          "lua",
+          "luadoc",
+          "vim",
+          "vimdoc",
+          "query",
+          "toml",
+          "xml",
+          "dockerfile",
+          -- Docs / notes
+          "markdown",
+          "markdown_inline",
+          "diff",
+          "regex",
+          "comment",
+        },
+        auto_install = true,
+        highlight = {
+          enable = true,
+          additional_vim_regex_highlighting = false,
+        },
+        indent = { enable = true },
+      })
+
       -- Workaround: nvim-treesitter's #set-lang-from-info-string! directive
       -- is incompatible with neovim 0.12.0's treesitter runtime, causing
       -- "attempt to call method 'range' (a nil value)" on markdown files
@@ -37,5 +79,5 @@ return {
   (#set! injection.language "markdown_inline"))
 ]])
     end,
-},
+  },
 }
