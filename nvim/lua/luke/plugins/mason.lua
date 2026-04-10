@@ -20,6 +20,7 @@ return {
           "ts_ls",         -- JavaScript / TypeScript
           "rust_analyzer", -- Rust
           "gopls",         -- Go
+          "powershell_es", -- PowerShell
         },
         -- We set servers up explicitly in lsp.lua; don't let mason-lspconfig
         -- auto-enable them or they'll start twice.
