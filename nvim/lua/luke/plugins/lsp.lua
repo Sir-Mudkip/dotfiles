@@ -20,14 +20,6 @@ return {
 
       -- Per-server overrides
 
-      -- PowerShell Editor Services needs its bundle path pointing at the
-      -- mason-installed package; the nvim-lspconfig default leaves it nil.
-      vim.lsp.config("powershell_es", {
-        init_options = {
-          bundle_path = vim.fn.stdpath("data") .. "/mason/packages/powershell-editor-services",
-        },
-      })
-
       -- yamlls with SchemaStore integration for Kubernetes, GitHub Actions,
       -- docker-compose, etc. Files matching the glob patterns below also
       -- get an explicit Kubernetes schema.
@@ -79,7 +71,6 @@ return {
         "ts_ls",
         "rust_analyzer",
         "gopls",
-        "powershell_es",
       })
 
       -- Buffer-local keymaps, applied whenever an LSP attaches to a buffer.
