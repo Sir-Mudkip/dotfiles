@@ -23,3 +23,6 @@ link "$DOTFILES/shell/bashrc" "$HOME/.bashrc"
 link "$DOTFILES/shell/bashrc.d" "$HOME/.bashrc.d"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/tmux/tmux.conf" "$HOME/.tmux.conf"
+
+read -rp "Install packages via Homebrew? [y/N] " ans
+[[ "$ans" =~ ^[Yy]$ ]] && "$DOTFILES/brew/bundle.sh"
