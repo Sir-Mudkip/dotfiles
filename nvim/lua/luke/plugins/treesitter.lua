@@ -78,6 +78,85 @@ return {
 ] @injection.content
   (#set! injection.language "markdown_inline"))
 ]])
+
+      -- Workaround: nvim-treesitter's bash heredoc injection uses
+      -- #downcase! on an optional (heredoc_end) node. When the heredoc is
+      -- unterminated (common while typing), neovim 0.12 calls :range() on
+      -- a nil node and throws "attempt to call method 'range' (a nil value)".
+      -- Ship the rest of the injections query without the heredoc rule.
+      vim.treesitter.query.set("bash", "injections", [[
+((comment) @injection.content
+  (#set! injection.language "comment"))
+
+((regex) @injection.content
+  (#set! injection.language "regex"))
+
+((command
+  name: (command_name) @_command
+  .
+  argument: [
+    (string) @injection.content
+    (concatenation
+      (string) @injection.content)
+    (raw_string) @injection.content
+    (concatenation
+      (raw_string) @injection.content)
+  ])
+  (#eq? @_command "printf")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.include-children)
+  (#set! injection.language "printf"))
+
+((command
+  name: (command_name) @_command
+  argument: (word) @_arg
+  .
+  (_)
+  .
+  argument: [
+    (string) @injection.content
+    (concatenation
+      (string) @injection.content)
+    (raw_string) @injection.content
+    (concatenation
+      (raw_string) @injection.content)
+  ])
+  (#eq? @_command "printf")
+  (#eq? @_arg "-v")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.include-children)
+  (#set! injection.language "printf"))
+
+((command
+  name: (command_name) @_command
+  argument: (word) @_arg
+  .
+  argument: [
+    (string) @injection.content
+    (concatenation
+      (string) @injection.content)
+    (raw_string) @injection.content
+    (concatenation
+      (raw_string) @injection.content)
+  ])
+  (#eq? @_command "printf")
+  (#eq? @_arg "--")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.include-children)
+  (#set! injection.language "printf"))
+
+((command
+  name: (command_name) @_command
+  .
+  argument: [
+    (string)
+    (raw_string)
+  ] @injection.content)
+  (#eq? @_command "bind")
+  (#offset! @injection.content 0 1 0 -1)
+  (#set! injection.include-children)
+  (#set! injection.language "readline"))
+]])
     end,
   },
 }

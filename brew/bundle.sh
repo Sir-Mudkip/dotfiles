@@ -118,8 +118,7 @@ BREW_TO_INSTALL=()
 BREW_ALREADY=()
 BREW_SYSTEM_SKIP=()       # names only, for HOMEBREW_BUNDLE_BREW_SKIP
 BREW_SYSTEM_SKIP_LABEL=() # "name (/path)" for display
-FLATPAK_TO_INSTALL=()
-FLATPAK_ALREADY=()
+FLATPAK_ENTRIES=()
 ROLE_HAS_FLATPAK=0
 
 analyse_role() {
@@ -128,8 +127,7 @@ analyse_role() {
     BREW_ALREADY=()
     BREW_SYSTEM_SKIP=()
     BREW_SYSTEM_SKIP_LABEL=()
-    FLATPAK_TO_INSTALL=()
-    FLATPAK_ALREADY=()
+    FLATPAK_ENTRIES=()
     ROLE_HAS_FLATPAK=0
 
     local brew_prefix
@@ -155,11 +153,7 @@ analyse_role() {
     while IFS= read -r id; do
         [[ -z "$id" ]] && continue
         ROLE_HAS_FLATPAK=1
-        if command -v flatpak &>/dev/null && flatpak info "$id" &>/dev/null; then
-            FLATPAK_ALREADY+=("$id")
-        else
-            FLATPAK_TO_INSTALL+=("$id")
-        fi
+        FLATPAK_ENTRIES+=("$id")
     done < <(parse_entries "$file" flatpak)
 }
 
@@ -175,10 +169,8 @@ report_role() {
     printf '    already via brew (%d): %s\n' \
         "${#BREW_ALREADY[@]}" "${BREW_ALREADY[*]:-none}"
     if ((ROLE_HAS_FLATPAK)); then
-        printf '    will install (flatpak) (%d): %s\n' \
-            "${#FLATPAK_TO_INSTALL[@]}" "${FLATPAK_TO_INSTALL[*]:-none}"
-        printf '    already via flatpak (%d): %s\n' \
-            "${#FLATPAK_ALREADY[@]}" "${FLATPAK_ALREADY[*]:-none}"
+        printf '    flatpak entries (%d): %s\n' \
+            "${#FLATPAK_ENTRIES[@]}" "${FLATPAK_ENTRIES[*]:-none}"
     fi
 }
 
@@ -195,7 +187,7 @@ run_role() {
     analyse_role "$file"
     report_role "$file"
 
-    if ((ROLE_HAS_FLATPAK)) && ((${#FLATPAK_TO_INSTALL[@]})); then
+    if ((ROLE_HAS_FLATPAK)); then
         if ! ensure_flatpak; then
             if ((${#BREW_TO_INSTALL[@]} == 0)); then
                 echo "  no installable brew entries remain — skipping role."
@@ -208,12 +200,8 @@ run_role() {
     if [[ "$DRY_RUN" -eq 1 ]]; then
         return 0
     fi
-    if ((${#BREW_TO_INSTALL[@]} == 0 && ${#FLATPAK_TO_INSTALL[@]} == 0)); then
+    if ((${#BREW_TO_INSTALL[@]} == 0 && ${#FLATPAK_ENTRIES[@]} == 0)); then
         echo "  nothing to do."
-        return 0
-    fi
-    if ! confirm "Proceed with 'brew bundle --file=${file}'?"; then
-        echo "  skipped."
         return 0
     fi
 
