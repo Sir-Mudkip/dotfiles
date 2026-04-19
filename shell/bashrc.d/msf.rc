@@ -31,7 +31,7 @@ podman-msf() {
         -v /tmp:/tmp \
         -e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$name" \
         -e MSF_UID=0 \
-        registry.gitlab.com/snotra.uk/containers/metasploit-framework
+        ghcr.io/sir-mudkip/metasploit:latest
 }
 
 # Connect to existing msfdb
@@ -46,5 +46,6 @@ podman-msf-connect() {
         -v $HOME:$HOME \
         -e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$1" \
         -e MSF_UID=0 \
-        registry.gitlab.com/snotra.uk/containers/metasploit-framework
+        ghcr.io/sir-mudkip/metasploit:latest
 }
+
