@@ -1,3 +1,8 @@
+## Essential tools that I often utilise for work
+# Taps
+tap "ublue-os/tap"
+
+# Tools
 brew "ripgrep"
 brew "fzf"
 brew "awscli"
@@ -10,3 +15,5 @@ brew "node"
 brew "python@3.12"
 brew "lua"
 cask "claude-code"
+cask "ublue-os/tap/linux-mcp-server"
+
