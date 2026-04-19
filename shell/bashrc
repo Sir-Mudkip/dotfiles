@@ -25,8 +25,12 @@ fi
 unset rc
 
 # Container indicator
-if [ -f /run/.containerenv ] || [ -f /.dockerenv ]; then
-    PS1="⏣ ${PS1}"
+if grep -qi "kali" /etc/os-release 2>/dev/null; then
+    PS1=$'\uf327 '"${PS1}"
+elif [ -f /.dockerenv ]; then
+    PS1=$'\ue650 '"${PS1}"
+elif [ -f /run/.containerenv ]; then
+    PS1=$'\ue866 '"${PS1}"
 fi
 
 # Starship Config
