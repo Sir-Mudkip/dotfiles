@@ -13,11 +13,12 @@ kali-base (){
 ## Kali-VM
 kali-vm (){
     sudo podman run \
-    -it \
-    --rm \
+    -d \
+    --name kali \
     --security-opt label=disable \
     --network host \
     --privileged \
     -v $HOME:$HOME \
-    ghcr.io/sir-mudkip/kali-cloud:latest
+    ghcr.io/sir-mudkip/kali-cloud:latest \
+    /sbin/init
 }
