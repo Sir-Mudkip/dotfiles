@@ -15,5 +15,5 @@ brew "node"
 brew "python@3.12"
 brew "lua"
 cask "claude-code"
-cask "ublue-os/tap/linux-mcp-server"
+cask "linux-mcp-server"
 
