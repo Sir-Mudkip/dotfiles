@@ -1,2 +1,5 @@
 # lazy-lock
 nvim/lazy-lock.json
+
+# Other
+new-bundle.sh

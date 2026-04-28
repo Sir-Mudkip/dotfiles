@@ -1,12 +1,6 @@
-# GUI apps via flatpak. brew bundle supports `flatpak "app.id"` on Linux.
-# Add entries as needed, e.g.:
-# Tap
-tap "ublue-os/tap"
-
 flatpak "net.waterfox.waterfox"
 flatpak "io.github.kolunmi.Bazaar"
 flatpak "io.podman_desktop.PodmanDesktop"
-cask "ublue-os/tap/vscodium-linux"
 flatpak "me.iepure.devtoolbox"
 flatpak "com.ranfdev.DistroShelf"
 flatpak "io.github.flattool.Warehouse"
@@ -24,4 +18,3 @@ flatpak "org.onlyoffice.desktopeditors"
 flatpak "com.github.PintaProject.Pinta"
 flatpak "md.obsidian.Obsidian"
 flatpak "com.obsproject.Studio"
-
