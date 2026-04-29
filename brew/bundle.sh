@@ -37,6 +37,8 @@ HOMEBREW_BUNDLE_BREW_SKIP=""
 HOMEBREW_BUNDLE_CASK_SKIP=""
 HOMEBREW_BUNDLE_VSCODE_SKIP=""
 
+FLATPAK_OK=1
+
 confirm() {
     local prompt="$1"
     while true; do
@@ -71,6 +73,11 @@ ensure_brew() {
 ensure_flatpak() {
     if command -v flatpak &>/dev/null; then
         echo "Flatpak already installed. Skipping"
+        return 0
+    fi
+    if ! confirm "Flatpak is not installed. Install it?"; then
+        echo "Skipping flatpak install — gui.Brewfile will be skipped."
+        FLATPAK_OK=0
         return 0
     fi
     for pkg in "${PKG_MANAGER[@]}"; do
@@ -136,6 +143,10 @@ check_vscode_extensions() {
 select_brewfiles() {
     SELECTED_BREWFILES=("${REQUIRED_BREWFILES[@]}")
     for file in "${OPTIONAL_BREWFILES[@]}"; do
+        if [[ "$(basename "$file")" == "gui.Brewfile" && "$FLATPAK_OK" -eq 0 ]]; then
+            echo "Skipping gui.Brewfile (flatpak not available)."
+            continue
+        fi
         if confirm "Install $(basename "$file")?"; then
             SELECTED_BREWFILES+=("$file")
         fi
