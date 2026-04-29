@@ -2,6 +2,17 @@
 
 set -e
 
+echo "NOTE: MAKE SURE YOU HAVE CURL INSTALLED!"
+
+pre_req(){
+    if ! command -v curl &>/dev/null; then
+        echo "curl is not installed"
+        exit 0
+    else
+        echo "Starting Install"
+    fi
+}
+
 DOTFILES="$HOME/dotfiles"
 
 # Ensure submodules are cloned
@@ -12,6 +23,12 @@ link() {
     [ -e "$2" ] && mv "$2" "$2.bak"
     ln -s "$1" "$2"
 }
+
+pre_req
+
+echo "==Brew And Flatpak=="
+
+"$DOTFILES/brew/bundle.sh"
 
 echo "==Initiating Symlinks=="
 
@@ -25,8 +42,4 @@ link "$DOTFILES/shell/bashrc" "$HOME/.bashrc"
 link "$DOTFILES/shell/bashrc.d" "$HOME/.bashrc.d"
 link "$DOTFILES/tmux/tmux.conf" "$HOME/.tmux.conf"
 link "$DOTFILES/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
-
-echo "==Brew And Flatpak=="
-
-"$DOTFILES/brew/bundle.sh"
 

@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-
 BREW_PATH=(
     /var/home/linuxbrew/.linuxbrew/bin/brew
     /home/linuxbrew/.linuxbrew/bin/brew
@@ -83,8 +82,6 @@ ensure_flatpak() {
             sudo "$pkg" update -y
             sudo "$pkg" install -y flatpak
             flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-            echo "Reboot your system and execute this file again"
-            exit 0
         fi
     done
 }
