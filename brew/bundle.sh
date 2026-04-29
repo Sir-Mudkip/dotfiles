@@ -13,8 +13,6 @@ BREW_PATH=(
 PKG_MANAGER=(
     dnf
     apt
-    pacman
-    zypper
     yum
 )
 
@@ -82,16 +80,11 @@ ensure_flatpak() {
     fi
     for pkg in "${PKG_MANAGER[@]}"; do
         if command -v "$pkg" &>/dev/null; then
-            if [[ "$pkg" != pacman ]]; then
-                sudo "$pkg" install -y flatpak
-                flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-                echo "Reboot your system and execute this file again"
-                exit 0
-            else
-                sudo "$pkg" -S flatpak
-                flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-            fi
-            break
+            sudo "$pkg" update -y
+            sudo "$pkg" install -y flatpak
+            flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+            echo "Reboot your system and execute this file again"
+            exit 0
         fi
     done
 }
