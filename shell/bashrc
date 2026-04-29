@@ -38,3 +38,10 @@ if command -v starship &>/dev/null; then
     export STARSHIP_CONFIG=$HOME/dotfiles/starship/starship.toml
     eval "$(starship init bash)" >/dev/null 2>&1
 fi
+
+# Brew
+if [[ -x /var/home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/var/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+else
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
