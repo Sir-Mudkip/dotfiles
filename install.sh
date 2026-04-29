@@ -13,7 +13,7 @@ link() {
     ln -s "$1" "$2"
 }
 
-echo "==Brew And Flatpak =="
+echo "==Brew And Flatpak=="
 
 read -rp "Install packages via Homebrew? [y/N] " ans
 [[ "$ans" =~ ^[Yy]$ ]] && "$DOTFILES/brew/bundle.sh"

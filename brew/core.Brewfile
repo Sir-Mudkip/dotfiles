@@ -1,4 +1,3 @@
-brew "git"
 brew "curl"
 brew "jq"
 brew "gh"
@@ -6,3 +5,4 @@ brew "neovim"
 brew "starship"
 brew "tmux"
 brew "trash-cli"
+

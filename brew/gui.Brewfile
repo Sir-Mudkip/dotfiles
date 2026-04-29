@@ -18,3 +18,4 @@ flatpak "org.onlyoffice.desktopeditors"
 flatpak "com.github.PintaProject.Pinta"
 flatpak "md.obsidian.Obsidian"
 flatpak "com.obsproject.Studio"
+

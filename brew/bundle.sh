@@ -2,237 +2,166 @@
 
 set -euo pipefail
 
-BREW_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-ROLES=(core essential gui)
 
-DRY_RUN=0
-ASSUME_YES=0
-SELECTED_ROLES=()
+BREW_PATH=(
+    /var/home/linuxbrew/.linuxbrew/bin/brew
+    /home/linuxbrew/.linuxbrew/bin/brew
+    /opt/homebrew/bin/brew
+    /usr/local/bin/brew
+)
 
-FLATPAK_OK=0
-FLATPAK_CHECKED=0
+PKG_MANAGER=(
+    dnf
+    apt
+    pacman
+    zypper
+    yum
+)
 
-usage() {
-    cat <<EOF
-Usage: bundle.sh [--dry-run] [--yes] [--role <name>]...
+REQUIRED_BREWFILES=(
+    "$HOME/dotfiles/brew/core.Brewfile"
+    "$HOME/dotfiles/brew/essential.Brewfile"
+)
 
-  --dry-run       Report what would change without installing
-  --yes           Skip confirmation prompts (still respects --role)
-  --role <name>   Install a specific role (repeatable). Defaults to interactive prompts.
+OPTIONAL_BREWFILES=(
+    "$HOME/dotfiles/brew/gui.Brewfile"
+    "$HOME/dotfiles/brew/vscode.Brewfile"
+)
 
-Available roles: ${ROLES[*]}
-EOF
-}
+BREWFILES=("${REQUIRED_BREWFILES[@]}" "${OPTIONAL_BREWFILES[@]}")
 
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --dry-run) DRY_RUN=1; shift ;;
-        --yes|-y) ASSUME_YES=1; shift ;;
-        --role) SELECTED_ROLES+=("$2"); shift 2 ;;
-        -h|--help) usage; exit 0 ;;
-        *) echo "Unknown argument: $1" >&2; usage; exit 2 ;;
-    esac
-done
+declare -A BREW_SPECIAL_CASES=([rg]=ripgrep [nvim]=neovim) 
+declare -A CASK_SPECIAL_CASES=([code]=visual-studio-code-linux [claude]=claude-code)
+
+HOMEBREW_BUNDLE_BREW_SKIP=""
+HOMEBREW_BUNDLE_CASK_SKIP=""
+HOMEBREW_BUNDLE_VSCODE_SKIP=""
 
 confirm() {
     local prompt="$1"
-    if [[ "$ASSUME_YES" -eq 1 ]]; then
-        return 0
-    fi
-    local ans
-    read -rp "$prompt [y/N] " ans
-    [[ "$ans" =~ ^[Yy]$ ]]
+    while true; do
+    read -rp "$prompt [y/N]" yn
+    case $yn in
+        [Yy]* ) return 0;;
+        [Nn]* ) return 1;;
+        * ) echo "Please yes or no.";;
+    esac
+done
 }
 
 ensure_brew() {
     if command -v brew &>/dev/null; then
+        echo "Brew already installed, skipping"
         return 0
     fi
-    echo "Homebrew is not installed."
-    if ! confirm "Install Homebrew now?"; then
-        echo "Skipping brew install. Exiting."
-        exit 0
-    fi
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    for candidate in /home/linuxbrew/.linuxbrew/bin/brew /opt/homebrew/bin/brew /usr/local/bin/brew; do
-        if [[ -x "$candidate" ]]; then
-            eval "$("$candidate" shellenv)"
+    for path in "${BREW_PATH[@]}"; do
+        if [[ -x "$path" ]]; then
+            eval "$("$path" shellenv)"
             break
         fi
     done
     if ! command -v brew &>/dev/null; then
-        echo "Homebrew install finished but 'brew' is not on PATH. Open a new shell and re-run." >&2
+        echo "Brew install finished but 'brew' is not on PATH. Open a new shell and re-run." >&2
         exit 1
     fi
+    echo "Brew added to your path variable, continuing"
 }
 
 ensure_flatpak() {
-    if [[ "$FLATPAK_CHECKED" -eq 1 ]]; then
-        return "$((1 - FLATPAK_OK))"
-    fi
-    FLATPAK_CHECKED=1
-
-    if ! command -v flatpak &>/dev/null; then
-        cat >&2 <<EOF
-flatpak is not installed. Install it first, then re-run:
-  Fedora Atomic:  rpm-ostree install flatpak && systemctl reboot
-  Fedora/others:  sudo dnf install flatpak
-
-Skipping flatpak-bearing roles for this run.
-EOF
-        FLATPAK_OK=0
-        return 1
-    fi
-
-    if flatpak remote-list --columns=name 2>/dev/null | grep -qx flathub; then
-        FLATPAK_OK=1
+    if command -v flatpak &>/dev/null; then
+        echo "Flatpak already installed. Skipping"
         return 0
     fi
-
-    echo "Flathub remote is not configured."
-    if ! confirm "Add flathub (user scope)?"; then
-        echo "Skipping flatpak-bearing roles for this run."
-        FLATPAK_OK=0
-        return 1
-    fi
-    flatpak remote-add --if-not-exists --user flathub \
-        https://dl.flathub.org/repo/flathub.flatpakrepo
-    FLATPAK_OK=1
-    return 0
-}
-
-parse_entries() {
-    local file="$1" kind="$2"
-    grep -E "^[[:space:]]*${kind}[[:space:]]+\"[^\"]+\"" "$file" 2>/dev/null \
-        | sed -E "s/^[[:space:]]*${kind}[[:space:]]+\"([^\"]+)\".*/\1/" \
-        || true
-}
-
-is_system_path() {
-    local path="$1" brew_prefix="$2"
-    [[ -n "$path" && "$path" != "$brew_prefix"/* && "$path" != "$HOME"/* ]]
-}
-
-# Globals populated by analyse_role; printed by report_role and used by run_role.
-BREW_TO_INSTALL=()
-BREW_ALREADY=()
-BREW_SYSTEM_SKIP=()       # names only, for HOMEBREW_BUNDLE_BREW_SKIP
-BREW_SYSTEM_SKIP_LABEL=() # "name (/path)" for display
-FLATPAK_ENTRIES=()
-ROLE_HAS_FLATPAK=0
-
-analyse_role() {
-    local file="$1"
-    BREW_TO_INSTALL=()
-    BREW_ALREADY=()
-    BREW_SYSTEM_SKIP=()
-    BREW_SYSTEM_SKIP_LABEL=()
-    FLATPAK_ENTRIES=()
-    ROLE_HAS_FLATPAK=0
-
-    local brew_prefix
-    brew_prefix="$(brew --prefix)"
-
-    while IFS= read -r pkg; do
-        [[ -z "$pkg" ]] && continue
-        if brew list --formula --versions "$pkg" &>/dev/null; then
-            BREW_ALREADY+=("$pkg")
-            continue
-        fi
-        local bin_name="${pkg##*/}"
-        local found
-        found="$(command -v "$bin_name" 2>/dev/null || true)"
-        if is_system_path "$found" "$brew_prefix"; then
-            BREW_SYSTEM_SKIP+=("$pkg")
-            BREW_SYSTEM_SKIP_LABEL+=("$pkg ($found)")
-            continue
-        fi
-        BREW_TO_INSTALL+=("$pkg")
-    done < <(parse_entries "$file" brew)
-
-    while IFS= read -r id; do
-        [[ -z "$id" ]] && continue
-        ROLE_HAS_FLATPAK=1
-        FLATPAK_ENTRIES+=("$id")
-    done < <(parse_entries "$file" flatpak)
-}
-
-report_role() {
-    local file="$1"
-    echo "  file: $file"
-    printf '    will install (brew) (%d): %s\n' \
-        "${#BREW_TO_INSTALL[@]}" "${BREW_TO_INSTALL[*]:-none}"
-    if ((${#BREW_SYSTEM_SKIP_LABEL[@]})); then
-        printf '    skipped (system package):\n'
-        printf '      - %s\n' "${BREW_SYSTEM_SKIP_LABEL[@]}"
-    fi
-    printf '    already via brew (%d): %s\n' \
-        "${#BREW_ALREADY[@]}" "${BREW_ALREADY[*]:-none}"
-    if ((ROLE_HAS_FLATPAK)); then
-        printf '    flatpak entries (%d): %s\n' \
-            "${#FLATPAK_ENTRIES[@]}" "${FLATPAK_ENTRIES[*]:-none}"
-    fi
-}
-
-run_role() {
-    local role="$1"
-    local file="$BREW_DIR/${role}.Brewfile"
-    echo
-    echo "=== ${role} ==="
-    if [[ ! -f "$file" ]]; then
-        echo "  (no Brewfile at $file — skipping)"
-        return 0
-    fi
-
-    analyse_role "$file"
-    report_role "$file"
-
-    if ((ROLE_HAS_FLATPAK)); then
-        if ! ensure_flatpak; then
-            if ((${#BREW_TO_INSTALL[@]} == 0)); then
-                echo "  no installable brew entries remain — skipping role."
-                return 0
+    for pkg in "${PKG_MANAGER[@]}"; do
+        if command -v "$pkg" &>/dev/null; then
+            if [[ "$pkg" != pacman ]]; then
+                sudo "$pkg" install -y flatpak
+                flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+                echo "Reboot your system and execute this file again"
+                exit 0
+            else
+                sudo "$pkg" -S flatpak
+                flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
             fi
-            echo "  proceeding with brew entries only; flatpak entries skipped."
+            break
         fi
-    fi
+    done
+}
 
-    if [[ "$DRY_RUN" -eq 1 ]]; then
+parse() {
+    grep -vE "flatpak|vscode|wallpapers|tap|#" "$@" | awk '{print $2}' | tr -dc "[:alnum:]-\n\r./@"
+}
+
+check_brew_binaries() {
+    local brew_prefix; brew_prefix="$(brew --prefix)"
+    for cmd in $(parse "${BREWFILES[@]}"); do
+        local found; found="$(command -v "$cmd" 2>/dev/null || true)"
+        if [[ -n "$found" && "$found" != "$brew_prefix"/* ]]; then
+            HOMEBREW_BUNDLE_BREW_SKIP+=" $cmd"
+        fi
+    done
+    for cmd in "${!BREW_SPECIAL_CASES[@]}"; do
+        local found; found="$(command -v "$cmd" 2>/dev/null || true)"
+        if [[ -n "$found" && "$found" != "$brew_prefix"/* ]]; then
+            HOMEBREW_BUNDLE_BREW_SKIP+=" ${BREW_SPECIAL_CASES[$cmd]}"
+        fi
+    done
+    export HOMEBREW_BUNDLE_BREW_SKIP
+}
+
+check_cask_binaries() {
+    local brew_prefix; brew_prefix="$(brew --prefix)"
+    for cmd in "${!CASK_SPECIAL_CASES[@]}"; do
+        local found; found="$(command -v "$cmd" 2>/dev/null || true)"
+        if [[ -n "$found" && "$found" != "$brew_prefix"/* ]]; then
+            HOMEBREW_BUNDLE_CASK_SKIP+=" ${CASK_SPECIAL_CASES[$cmd]}"
+        fi
+    done
+    export HOMEBREW_BUNDLE_CASK_SKIP
+}
+
+check_vscode_extensions() {
+    if ! command -v code &>/dev/null; then
         return 0
     fi
-    if ((${#BREW_TO_INSTALL[@]} == 0 && ${#FLATPAK_ENTRIES[@]} == 0)); then
-        echo "  nothing to do."
-        return 0
-    fi
+    local installed; installed="$(code --list-extensions 2>/dev/null || true)"
+    [[ -z "$installed" ]] && return 0
+    while IFS= read -r ext; do
+        HOMEBREW_BUNDLE_VSCODE_SKIP+=" $ext"
+    done <<< "$installed"
+    export HOMEBREW_BUNDLE_VSCODE_SKIP
+}
 
-    local skip_list=""
-    if ((${#BREW_SYSTEM_SKIP[@]})); then
-        skip_list="${BREW_SYSTEM_SKIP[*]}"
-    fi
-    HOMEBREW_BUNDLE_BREW_SKIP="$skip_list" brew bundle --file="$file"
+select_brewfiles() {
+    SELECTED_BREWFILES=("${REQUIRED_BREWFILES[@]}")
+    for file in "${OPTIONAL_BREWFILES[@]}"; do
+        if confirm "Install $(basename "$file")?"; then
+            SELECTED_BREWFILES+=("$file")
+        fi
+    done
 }
 
 main() {
     ensure_brew
+    ensure_flatpak
+    check_brew_binaries
+    check_cask_binaries
+    check_vscode_extensions
 
-    local roles_to_run=()
-    if ((${#SELECTED_ROLES[@]})); then
-        roles_to_run=("${SELECTED_ROLES[@]}")
-    else
-        for role in "${ROLES[@]}"; do
-            if confirm "Install '${role}' Brewfile?"; then
-                roles_to_run+=("$role")
-            fi
-        done
+    select_brewfiles
+    if ((${#SELECTED_BREWFILES[@]} == 0)); then
+        echo "No Brewfiles selected. Nothing to do."
+        return
     fi
 
-    if ((${#roles_to_run[@]} == 0)); then
-        echo "No roles selected. Nothing to do."
-        exit 0
-    fi
+    echo "BREW_SKIP:  ${HOMEBREW_BUNDLE_BREW_SKIP:-(none)}"
+    echo "CASK_SKIP:  ${HOMEBREW_BUNDLE_CASK_SKIP:-(none)}"
+    echo "VSCODE_SKIP:${HOMEBREW_BUNDLE_VSCODE_SKIP:+ }${HOMEBREW_BUNDLE_VSCODE_SKIP:-(none)}"
 
-    for role in "${roles_to_run[@]}"; do
-        run_role "$role"
+    for file in "${SELECTED_BREWFILES[@]}"; do
+        echo "==$(basename "$file")=="
+        brew bundle --file "$file"
     done
 }
 
