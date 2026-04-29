@@ -33,6 +33,7 @@ echo "==Brew And Flatpak=="
 echo "==Initiating Symlinks=="
 
 link "$DOTFILES/aws/config" "$HOME/.aws/config"
+link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/claude/skills" "$HOME/.claude/skills"
 link "$DOTFILES/claude/settings.json" "$HOME/.claude/settings.json"
 link "$DOTFILES/git/gitignore-global" "$HOME/.gitignore-global"

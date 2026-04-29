@@ -27,7 +27,7 @@ OPTIONAL_BREWFILES=(
 
 BREWFILES=("${REQUIRED_BREWFILES[@]}" "${OPTIONAL_BREWFILES[@]}")
 
-declare -A BREW_SPECIAL_CASES=([rg]=ripgrep [nvim]=neovim) 
+declare -A BREW_SPECIAL_CASES=([rg]=ripgrep [nvim]=neovim [aws]=awscli [az]=azure-cli) 
 declare -A CASK_SPECIAL_CASES=([code]=visual-studio-code-linux [claude]=claude-code)
 
 HOMEBREW_BUNDLE_BREW_SKIP=""
