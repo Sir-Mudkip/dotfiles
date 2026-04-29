@@ -5,5 +5,4 @@ brew "neovim"
 brew "starship"
 brew "tmux"
 brew "trash-cli"
-brew "gcc"
-
+brew "llvm"
