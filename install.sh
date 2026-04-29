@@ -13,11 +13,6 @@ link() {
     ln -s "$1" "$2"
 }
 
-echo "==Brew And Flatpak=="
-
-read -rp "Install packages via Homebrew? [y/N] " ans
-[[ "$ans" =~ ^[Yy]$ ]] && "$DOTFILES/brew/bundle.sh"
-
 echo "==Initiating Symlinks=="
 
 link "$DOTFILES/aws/config" "$HOME/.aws/config"
@@ -30,4 +25,8 @@ link "$DOTFILES/shell/bashrc" "$HOME/.bashrc"
 link "$DOTFILES/shell/bashrc.d" "$HOME/.bashrc.d"
 link "$DOTFILES/tmux/tmux.conf" "$HOME/.tmux.conf"
 link "$DOTFILES/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
+
+echo "==Brew And Flatpak=="
+
+"$DOTFILES/brew/bundle.sh"
 
