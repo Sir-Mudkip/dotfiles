@@ -1,14 +1,3 @@
 # Brew
-if [[ -x /var/home/linuxbrew/.linuxbrew/bin/brew ]]; then
-    eval "$(/var/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-else
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-# Autocomplete workaround for tmux
-if [[ -n "$TMUX" ]] && type brew &>/dev/null; then
-    HOMEBREW_PREFIX="$(brew --prefix)"
-    for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*; do
-        [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
-    done
-fi
