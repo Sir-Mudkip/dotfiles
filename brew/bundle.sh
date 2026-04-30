@@ -39,7 +39,7 @@ FLATPAK_OK=1
 confirm() {
     local prompt="$1"
     while true; do
-    read -rp "$prompt [y/N]" yn
+    read -rp "$prompt [y/N] " yn
     case $yn in
         [Yy]* ) return 0;;
         [Nn]* ) return 1;;
