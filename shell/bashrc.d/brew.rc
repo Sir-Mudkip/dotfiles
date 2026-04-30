@@ -6,9 +6,9 @@ else
 fi
 
 # Autocomplete workaround for tmux
-if [[ -n "$TMUX" ]] && if type brew &>/dev/null; then
+if [[ -n "$TMUX" ]] && type brew &>/dev/null; then
     HOMEBREW_PREFIX="$(brew --prefix)"
     for COMPLETION in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*; do
-    [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
+        [[ -r "${COMPLETION}" ]] && source "${COMPLETION}"
     done
 fi
