@@ -7,7 +7,7 @@
     "telemetry.editStats.enabled": false,
     "telemetry.performance.inputLatencySamplingProbability": 0,
     "workbench.remoteIndicator.showExtensionRecommendations": false,
-    "workbench.colorTheme": "Monokai Night",
+    "workbench.colorTheme": "GitHub Dark Dimmed",
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
