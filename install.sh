@@ -44,3 +44,4 @@ link "$DOTFILES/shell/bashrc.d" "$HOME/.bashrc.d"
 link "$DOTFILES/tmux/tmux.conf" "$HOME/.tmux.conf"
 link "$DOTFILES/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
 
+echo "Next steps (if not present) are Install Podman and Docker"
