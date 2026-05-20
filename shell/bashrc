@@ -39,3 +39,6 @@ if command -v starship &>/dev/null; then
     eval "$(starship init bash)" >/dev/null 2>&1
 fi
 
+# Editor
+export EDITOR=/home/linuxbrew/.linuxbrew/bin/nvim
+export VISUAL=/home/linuxbrew/.linuxbrew/bin/nvim
