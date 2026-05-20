@@ -20,5 +20,10 @@
         "**/*.asc": true,
         "**/cosign.key": true
     },
-    "chat.disableAIFeatures": true
+    "chat.disableAIFeatures": true,
+    "files.associations": {
+        "*.rc": "shellscript",
+        "*.Brewfile": "ruby",
+        "Brewfile": "ruby"
+    }
 }
