@@ -1,0 +1,4 @@
+alias bloodhound-up="podman-compose -f $HOME/toolkit/bloodhound/docker-compose.yml up -d"
+alias bloodhound-down="podman-compose -f $HOME/toolkit/bloodhound/docker-compose.yml down"
+alias bloodhound-logs="podman-compose -f $HOME/toolkit/bloodhound/docker-compose.yml logs -f"
+
