@@ -164,6 +164,7 @@ main() {
         echo "==$(basename "$file")=="
         brew bundle --file "$file"
     done
+    brew trust ublue-os/tap
 }
 
 main "$@"
