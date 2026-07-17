@@ -1,2 +1,42 @@
-# Hacktricks
-alias hacktricks='podman run -d --rm --platform linux/amd64 -p 3337:3000 --name hacktricks -v $HOME/toolkit/hacktricks:/app ghcr.io/hacktricks-wiki/hacktricks-cloud/translator-image bash -c "mkdir -p ~/.ssh && ssh-keyscan -H github.com >> ~/.ssh/known_hosts && cd /app && git config --global --add safe.directory /app && git checkout $LANG && git pull && MDBOOK_PREPROCESSOR__HACKTRICKS__ENV=dev mdbook serve --hostname 0.0.0.0"'
+# Hacktricks — Option A: build the image once, run it persistently.
+# Launchable from any directory. Serves at http://localhost:3337
+#   hacktricks          -> start (build image on first run, resume if stopped)
+#   hacktricks stop     -> stop the running container (stays around)
+#   hacktricks rebuild  -> rebuild image from repo + restart (pull latest content)
+#   hacktricks logs     -> follow the build/serve logs
+hacktricks() {
+    local dir="$HOME/toolkit/hacktricks"
+    local name="hacktricks"
+    local port=3337
+
+    case "$1" in
+        stop)
+            podman stop "$name" >/dev/null 2>&1 && echo "HackTricks stopped."
+            return
+            ;;
+        logs)
+            podman logs -f "$name"
+            return
+            ;;
+        rebuild)
+            echo "Rebuilding hacktricks image from $dir ..."
+            podman build -t hacktricks "$dir" || return 1
+            podman rm -f "$name" >/dev/null 2>&1
+            ;;
+    esac
+
+    # If the container already exists, just make sure it's running.
+    if [ "$1" != "rebuild" ] && podman ps -a --format '{{.Names}}' | grep -qx "$name"; then
+        podman start "$name" >/dev/null && echo "HackTricks running -> http://localhost:$port"
+        return
+    fi
+
+    # Build the image if it isn't present yet (first run).
+    if ! podman image inspect hacktricks:latest >/dev/null 2>&1; then
+        echo "Building hacktricks image (first run, takes a few minutes) ..."
+        podman build -t hacktricks "$dir" || return 1
+    fi
+
+    podman run -d --restart unless-stopped -p "$port:3000" --name "$name" hacktricks:latest >/dev/null \
+        && echo "HackTricks starting -> http://localhost:$port  (book builds in ~1 min; 'hacktricks logs' to watch)"
+}

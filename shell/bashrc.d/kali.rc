@@ -1,5 +1,5 @@
 ## Kali Base
-kali-base (){
+podman-kali-base (){
     sudo podman run \
     -it \
     --rm \
@@ -10,15 +10,14 @@ kali-base (){
     ghcr.io/sir-mudkip/kali-base:latest
 }
 
-## Kali-VM
-kali-vm (){
+## Kali-cloud
+podman-kali-cloud (){
     sudo podman run \
-    -d \
-    --name kali \
+    --rm \
+    --it \
     --security-opt label=disable \
     --network host \
     --privileged \
     -v $HOME:$HOME \
     ghcr.io/sir-mudkip/kali-cloud:latest \
-    /sbin/init
 }
