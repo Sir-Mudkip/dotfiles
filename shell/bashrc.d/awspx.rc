@@ -1,0 +1,47 @@
+# awpsx
+awspx() {
+    if [[ -z "$(docker ps -a -f name=^/awspx$ -q)" ]]; then
+
+        if [[ -z "$(docker images -q beatro0t/awspx 2>/dev/null)" ]]; then
+            echo -e "[*] No \"beatro0t/awspx\" image, pulling it"
+            docker pull beatro0t/awspx || return 1
+        fi
+
+        echo -e "[*] Creating \"awspx\" container, neo4j needs ~30s to come up"
+        docker run -it -d \
+            --name awspx \
+            --hostname=awspx \
+            --env NEO4J_AUTH=neo4j/password \
+            -p 127.0.0.1:80:80 \
+            -p 127.0.0.1:7687:7687 \
+            -p 127.0.0.1:7373:7373 \
+            -p 127.0.0.1:7474:7474 \
+            -v /media/$USER:/media/$USER \
+            -v $HOME/.aws:/root/.aws \
+            -e NEO4J_dbms_security_procedures_unrestricted=apoc.jar \
+            beatro0t/awspx > /dev/null || return 1
+    fi
+
+    if [[ -z "$(docker ps -a -f name=^/awspx$ -f status=running -q)" ]]; then
+        docker start awspx > /dev/null
+    fi
+
+    docker exec -it \
+        -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+        -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+        -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN \
+        -e AWS_SECURITY_TOKEN=$AWS_SECURITY_TOKEN \
+        awspx /opt/awspx/cli.py $@
+
+}
+
+# Remove the container, running or not
+awspx_destroy() {
+    if [[ -z "$(docker ps -a -f name=^/awspx$ -q)" ]]; then
+        echo -e "[-] No \"awspx\" container to destroy"
+        return 1
+    fi
+
+    docker rm -f awspx > /dev/null 2>&1
+    echo -e "[+] Destroyed \"awspx\" container"
+}

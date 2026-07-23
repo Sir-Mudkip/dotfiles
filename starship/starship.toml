@@ -1,5 +1,5 @@
 format = """\
-\\[$username[@](bold fg:111)$hostname\\]-\\[$directory\\] $git_branch$git_status$python$rust$custom
+\\[$username[@](bold fg:111)$hostname\\]-\\[$directory\\] $git_branch$git_status$python$rust$golang$custom
 $character"""
 
 [username]
@@ -38,6 +38,10 @@ format = "[${symbol}${virtualenv}](yellow)"
 [rust]
 symbol = "\ue7a8 "
 format = "[${symbol}](red)"
+
+[golang]
+symbol = "\ue65e "
+format = "[${symbol}](blue)"
 
 [custom.bash]
 command = "echo ''"

@@ -14,6 +14,7 @@ pre_req(){
 }
 
 DOTFILES="$HOME/dotfiles"
+TOOLKIT="$HOME/toolkit"
 
 # Ensure submodules are cloned
 git -C "$DOTFILES" submodule update --init --recursive
@@ -26,13 +27,34 @@ link() {
 
 pre_req
 
+echo "==Toolbox of Things=="
+
+mkdir -p "$TOOLKIT"
+# Clone on first run, pull on re-runs, so install.sh stays re-runnable
+clone_or_pull() {
+    if [ -d "$2/.git" ]; then
+        echo "Updating $(basename "$2")"
+        git -C "$2" pull --ff-only
+    else
+        git clone "$1" "$2"
+    fi
+}
+
+clone_or_pull https://github.com/danielmiessler/SecLists.git "$TOOLKIT/seclists"
+tar -xzvf "$TOOLKIT/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz" -C "$TOOLKIT/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz"
+clone_or_pull https://github.com/ReversecLabs/awspx.git "$TOOLKIT/awspx"
+clone_or_pull https://github.com/HackTricks-wiki/hacktricks "$TOOLKIT/hacktricks"
+mkdir -p "$TOOLKIT/bloodhound"
+curl https://https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/docker-compose.yml > "$TOOLKIT/bloodhound/docker-compose.yml"
+curl https://https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/.env.example > "$TOOLKIT/bloodhound/.env.example"
+curl https://https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/bloodhound.config.json > "$TOOLKIT/bloodhound/bloodhound.config.json"
+
 echo "==Brew And Flatpak=="
 
 "$DOTFILES/brew/bundle.sh"
 
 echo "==Initiating Symlinks=="
 
-link "$DOTFILES/aws/config" "$HOME/.aws/config"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/claude/skills" "$HOME/.claude/skills"
 link "$DOTFILES/claude/settings.json" "$HOME/.claude/settings.json"

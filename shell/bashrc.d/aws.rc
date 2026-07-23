@@ -1,0 +1,12 @@
+# AWS Completer
+complete -C '/var/home/linuxbrew/.linuxbrew/bin/aws_completer' aws
+
+# Export AWS Credentials if logged in via aws login
+
+export_aws_credentials() {
+    if [ "$1" ]; then
+        aws configure export-credentials --profile "$1" --format process | jq -r '"[default]\naws_access_key_id = " + .AccessKeyId + "\naws_secret_access_key = " + .SecretAccessKey + "\naws_session_token = " + .SessionToken'
+    else
+        aws configure export-credentials --format process | jq -r '"[default]\naws_access_key_id = " + .AccessKeyId + "\naws_secret_access_key = " + .SecretAccessKey + "\naws_session_token = " + .SessionToken'
+    fi
+}

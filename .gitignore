@@ -1,5 +1,6 @@
 # lazy-lock
 nvim/lazy-lock.json
 
-# Other
-new-bundle.sh
+# Business functions - functions which will operate on work devices that should not touch this repository
+shell/bashrc.d/business.rc
+

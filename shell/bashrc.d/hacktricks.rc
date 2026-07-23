@@ -40,3 +40,10 @@ hacktricks() {
     podman run -d --restart unless-stopped -p "$port:3000" --name "$name" hacktricks:latest >/dev/null \
         && echo "HackTricks starting -> http://localhost:$port  (book builds in ~1 min; 'hacktricks logs' to watch)"
 }
+
+## hacktricks compose
+alias hacktricks-up="podman-compose -f $HOME/toolkit/hacktricks/docker-compose.yml up -d"
+alias hacktricks-down="podman-compose -f $HOME/toolkit/hacktricks/docker-compose.yml down"
+alias hacktricks-logs="podman-compose -f $HOME/toolkit/hacktricks/docker-compose.yml logs -f"
+
+
