@@ -1,4 +1,3 @@
-flatpak "net.waterfox.waterfox"
 flatpak "io.github.kolunmi.Bazaar"
 flatpak "io.podman_desktop.PodmanDesktop"
 flatpak "me.iepure.devtoolbox"
