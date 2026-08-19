@@ -41,13 +41,13 @@ clone_or_pull() {
 }
 
 clone_or_pull https://github.com/danielmiessler/SecLists.git "$TOOLKIT/seclists"
-tar -xzvf "$TOOLKIT/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz" -C "$TOOLKIT/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz"
+tar -xzvf "$TOOLKIT/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz" -C "$TOOLKIT/seclists/Passwords/Leaked-Databases/"
 clone_or_pull https://github.com/ReversecLabs/awspx.git "$TOOLKIT/awspx"
 clone_or_pull https://github.com/HackTricks-wiki/hacktricks "$TOOLKIT/hacktricks"
 mkdir -p "$TOOLKIT/bloodhound"
-curl https://https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/docker-compose.yml > "$TOOLKIT/bloodhound/docker-compose.yml"
-curl https://https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/.env.example > "$TOOLKIT/bloodhound/.env.example"
-curl https://https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/bloodhound.config.json > "$TOOLKIT/bloodhound/bloodhound.config.json"
+curl -fsSL https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/docker-compose.yml > "$TOOLKIT/bloodhound/docker-compose.yml"
+curl -fsSL https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/.env.example > "$TOOLKIT/bloodhound/.env.example"
+curl -fsSL https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/bloodhound.config.json > "$TOOLKIT/bloodhound/bloodhound.config.json"
 
 echo "==Brew And Flatpak=="
 

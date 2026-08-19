@@ -10,14 +10,14 @@ podman-kali-base (){
     ghcr.io/sir-mudkip/kali-base:latest
 }
 
-## Kali-cloud
+## Kali Cloud
 podman-kali-cloud (){
     sudo podman run \
     --rm \
-    --it \
+    -it \
     --security-opt label=disable \
     --network host \
     --privileged \
     -v $HOME:$HOME \
-    ghcr.io/sir-mudkip/kali-cloud:latest \
+    ghcr.io/sir-mudkip/kali-cloud:latest
 }
