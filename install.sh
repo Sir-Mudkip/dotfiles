@@ -15,6 +15,7 @@ pre_req(){
 
 DOTFILES="$HOME/dotfiles"
 TOOLKIT="$HOME/toolkit"
+ROCKYOU_DIR="$TOOLKIT/seclists/Passwords/Leaked-Databases"
 
 # Ensure submodules are cloned
 git -C "$DOTFILES" submodule update --init --recursive
@@ -49,7 +50,11 @@ clone_or_pull() {
 }
 
 clone_or_pull https://github.com/danielmiessler/SecLists.git "$TOOLKIT/seclists"
-tar -xzvf "$TOOLKIT/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz" -C "$TOOLKIT/seclists/Passwords/Leaked-Databases/"
+if [ -f "$ROCKYOU_DIR/rockyou.txt" ]; then
+    echo "rockyou already extracted, skipping"
+else
+    tar -xzvf "$ROCKYOU_DIR/rockyou.txt.tar.gz" -C "$ROCKYOU_DIR"
+fi
 clone_or_pull https://github.com/ReversecLabs/awspx.git "$TOOLKIT/awspx"
 clone_or_pull https://github.com/HackTricks-wiki/hacktricks "$TOOLKIT/hacktricks"
 mkdir -p "$TOOLKIT/bloodhound"
