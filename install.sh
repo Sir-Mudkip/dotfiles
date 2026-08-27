@@ -21,7 +21,15 @@ git -C "$DOTFILES" submodule update --init --recursive
 
 link() {
     mkdir -p "$(dirname "$2")"
-    [ -e "$2" ] && mv "$2" "$2.bak"
+    # Already pointing where we want it, leave it alone so re-runs are a no-op
+    if [ -L "$2" ] && [ "$(readlink -f "$2")" = "$(readlink -f "$1")" ]; then
+        echo "Already linked: $2"
+        return 0
+    fi
+    # Anything else in the way (real file, or a symlink elsewhere) gets backed up
+    if [ -e "$2" ] || [ -L "$2" ]; then
+        mv "$2" "$2.bak"
+    fi
     ln -s "$1" "$2"
 }
 
